@@ -14,8 +14,7 @@ mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true,  useFin
 
 const entrySchema = new mongoose.Schema({
   name: String,
-  number: Number,
-  id: Number
+  number: Number
 })
 
 entrySchema.set('toJSON', {
