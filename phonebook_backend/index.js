@@ -1,16 +1,25 @@
 
 const { request, response } = require('express')
 
+//Using mongoose to connect with MongoDb and work with models
+const mongoose = require('mongoose')
+
+//Using dotenv package to store environment variables
+require('dotenv').config()
+const Entry = require('./models/entry')
+
+//using Express
 const express = require('express')
 const app = express()
 app.use(express.json())
 app.use(express.static('build'))
 
-const morgan = require('morgan')
+const morgan = require('morgan')    //Morgan middleware
 app.use(morgan('tiny'))
 
-const cors = require('cors')
+const cors = require('cors')      //Cors middleware, so that we can connect files on two different ports cross something...
 app.use(cors())
+
 
 let persons = [
     { id: 1,
@@ -27,7 +36,10 @@ let persons = [
 ]
 
 app.get('/api/persons', (request, response)=>{
-    response.json(persons)
+  Entry.find({}).then(result => {
+    response.json(result)
+    console.log(result)
+  })
 })
 
 app.get('/info', (request, response)=>{
@@ -70,18 +82,19 @@ app.post('/api/persons', (request, response)=>{
     return response.status(400).json({error: "name or number missing"})
   }
   
-  const person = {
+  const person = new Entry({
     name: body.name,
     number: body.number,
     id: generateId()
-  }
+  })
 
-  persons = persons.concat(person)
+  person.save().then(savedPerson => {
+    response.json(savedPerson)  
+  })
   
-  response.json(person)
 })
 
-const PORT = process.env.PORT || 3002
+const PORT = process.env.PORT
 app.listen(PORT, ()=>{
     console.log(`Server running on ${PORT}`)
 })
